@@ -2,4 +2,4 @@
 JavaScript tools for JOSM
 
 ---
-[Public Transport] (./PT/PT.md)
+[Public Transport](PT/PT.md)
