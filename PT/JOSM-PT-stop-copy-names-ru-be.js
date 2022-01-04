@@ -1,3 +1,6 @@
+// Копирование имён остановки
+// v. 1.0 2022.01.04
+// © KorneySan (https://github.com/KorneySan) при участии h1tsmart (https://github.com/h1tsmart)
 var api = require("josm/api").Api;
 var util = require("josm/util");
 var cmd = require("josm/command");
@@ -31,17 +34,43 @@ ds.batch(function() {
 		if(cur_rel.get("public_transport") == "stop_area") {
 		    if (cur_rel.hasIncompleteMembers()) {
 			    //докачиваем неполные элементы
-				api.downloadObject(cur_rel, {full: true});
+				var new_ds = api.downloadObject(cur_rel, {full: true});
+				cur_rel = new_ds.relation(cur_rel.getId());
 		    }
 			util.println("Stop Area named '{0}' was found.", cur_rel.get("name"));
 			//josm.alert("Найдена зона "+cur_rel.get("name")+" .");
 		    //копируем имя на отношение
-			cur_rel.setModified(true);
 			activeLayer.apply(
-				cmd.change(cur_rel, {tags: {name: cur_node.get("name")}}),
-				cmd.change(cur_rel, {tags: {"name:ru": cur_node.get("name:ru")}}),
-				cmd.change(cur_rel, {tags: {"name:be": cur_node.get("name:be")}})
+				cmd.change(cur_rel, {tags: {name: cur_node.get("name"), 
+										    "name:ru": cur_node.get("name:ru"), 
+											"name:be": cur_node.get("name:be")
+										   }})
 			);
+			if (cur_rel.get("ref") == null && cur_node.get("ref") != null) {
+				activeLayer.apply(
+					cmd.change(cur_rel, {tags: {ref: cur_node.get("ref")}})
+				);
+			}
+			else {
+				if (cur_node.get("ref") == null && cur_rel.get("ref") != null) {
+					activeLayer.apply(
+						cmd.change(cur_node, {tags: {ref: cur_rel.get("ref")}})
+					);
+				}
+			}
+			if (cur_rel.get("operator") == null && cur_node.get("operator") != null) {
+				activeLayer.apply(
+					cmd.change(cur_rel, {tags: {operator: cur_node.get("operator")}})
+				);
+			}
+			else {
+				if (cur_node.get("operator") == null && cur_rel.get("operator") != null) {
+					activeLayer.apply(
+						cmd.change(cur_node, {tags: {operator: cur_rel.get("operator")}})
+					);
+				}
+			}
+			
             var members = cur_rel.members;
             for (var i=0; i<members.length; i++) {
 				util.println("Member {0} has type {1}", i, members[i].getType());
@@ -52,12 +81,22 @@ ds.batch(function() {
         		    //копируем имя на элемент отношения
                     var member = members[i].getMember();
 
-		            member.setModified(true);
 					activeLayer.apply(
-						cmd.change(member, {tags: {name: cur_node.get("name")}}),
-						cmd.change(member, {tags: {"name:ru": cur_node.get("name:ru")}}),
-						cmd.change(member, {tags: {"name:be": cur_node.get("name:be")}})
+						cmd.change(member, {tags: {name: cur_node.get("name"), 
+												   "name:ru": cur_node.get("name:ru"), 
+												   "name:be": cur_node.get("name:be")
+												  }})
 					);
+					if (member.get("ref") == null && cur_rel.get("ref") != null) {
+						activeLayer.apply(
+							cmd.change(member, {tags: {ref: cur_rel.get("ref")}})
+						);
+					}
+					if (member.get("operator") == null && cur_rel.get("operator") != null) {
+						activeLayer.apply(
+							cmd.change(member, {tags: {operator: cur_rel.get("operator")}})
+						);
+					}
 					//josm.alert("Установлено.");
 				}
 			}
