@@ -1,5 +1,5 @@
 // Копирование имён остановки
-// v. 1.0 2022.01.04
+// v. 1.1 2022.01.08
 // © KorneySan (https://github.com/KorneySan) при участии h1tsmart (https://github.com/h1tsmart)
 var api = require("josm/api").Api;
 var util = require("josm/util");
@@ -35,7 +35,7 @@ ds.batch(function() {
 		    if (cur_rel.hasIncompleteMembers()) {
 			    //докачиваем неполные элементы
 				var new_ds = api.downloadObject(cur_rel, {full: true});
-				cur_rel = new_ds.relation(cur_rel.getId());
+				ds.mergeFrom(new_ds);
 		    }
 			util.println("Stop Area named '{0}' was found.", cur_rel.get("name"));
 			//josm.alert("Найдена зона "+cur_rel.get("name")+" .");
