@@ -1,7 +1,7 @@
 // Копирование имён остановки
-// v. 1.1 2022.01.08
+// v. 1.2 2023.03.11
 // © KorneySan (https://github.com/KorneySan) при участии h1tsmart (https://github.com/h1tsmart)
-var api = require("josm/api").Api;
+// var api = require("josm/api").Api; //не требуется в Java 17
 var util = require("josm/util");
 var cmd = require("josm/command");
 var layers = require("josm/layers");
