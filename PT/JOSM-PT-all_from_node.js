@@ -1,8 +1,8 @@
 // Остановка из точки
-// v. 1.0 2022.01.04
+// v. 1.1 2023.03.25
 // © h1tsmart (https://github.com/h1tsmart)
 // © KorneySan (https://github.com/KorneySan)
-var api = require("josm/api").Api;
+// var api = require("josm/api").Api;  //не требуется в Java 17
 var util = require("josm/util");
 var cmd = require("josm/command");
 var layers = require("josm/layers");
@@ -120,6 +120,7 @@ var new_node = nbuilder
     .withTags({"public_transport": 1 == way_mode ? "stop_position" : "platform",
 			   "name": cur_node.get("name"),
 			   "name:ru": cur_node.get("name:ru"),
+			   "name:be": cur_node.get("name:be"),
 			   "ref": cur_node.get("ref"),
 			   "operator": cur_node.get("operator")
 			 })
@@ -128,7 +129,10 @@ var new_node = nbuilder
 var way_nodes_new = insert_arr_in_arr(cur_way.nodes,nearest.segment_idx+1,[new_node]);
 var new_way = wbuilder
     .withNodes(cur_node,new_node)
-    .withTags({"highway":"footway"})
+    .withTags({"highway":"footway",
+               "footway":"link",
+               "public_transport":"entrance_pass"
+             })
     .create();
 	
 //создаём отношение зоны остановки
@@ -137,12 +141,13 @@ var stop_area_rel = rbuilder
                "public_transport": "stop_area",
                "name": cur_node.get("name"),
 		       "name:ru": cur_node.get("name:ru"),
+		       "name:be": cur_node.get("name:be"),
 			   "ref": cur_node.get("ref"),
 			   "operator": cur_node.get("operator")
 			 })
     .withMembers(member("stop", 1 == way_mode ? new_node : cur_node),
 	             member("platform", 1 == way_mode ? cur_node : new_node),
-			     member(new_way))
+			     member("entrance_pass", new_way))
     .create();
 
 //меняем исходную точку при необходимости
